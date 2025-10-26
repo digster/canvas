@@ -5,6 +5,8 @@ A modern, interactive canvas learning tool similar to JSFiddle, built with React
 ## Features
 
 - **Live Code Editing**: Edit HTML, CSS, and JavaScript in real-time with Monaco Editor (the same editor that powers VSCode)
+- **Auto-Save**: Your work is automatically saved to browser localStorage as you type
+- **Export/Import**: Save your projects as JSON files and load them later
 - **Resizable Panes**: Drag the borders between panes to adjust their sizes to your preference
 - **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels
 - **Closable Panels**: Close any panel you don't need with the × button, and reopen it from the header menu
@@ -52,6 +54,10 @@ The tool consists of four panels that you can customize to your workflow:
 
 **Customization Tips:**
 
+- **Auto-Save**: Your work is automatically saved to browser localStorage - close and reopen the app anytime
+- **Export Project**: Click the "Export" button to download your project as a JSON file
+- **Import Project**: Click the "Import" button to load a previously exported project
+- **Clear Code**: Click the "Clear" button to reset all code to the default example
 - **Resize Panes**: 
   - Drag the **horizontal borders** between left/right panels in each row to adjust widths
   - Drag the **vertical border** between top and bottom rows to adjust heights  
@@ -76,13 +82,19 @@ The tool consists of four panels that you can customize to your workflow:
 ```
 src/
 ├── components/
-│   ├── CodeEditor.tsx    # Monaco editor wrapper
-│   └── Preview.tsx       # Live preview iframe
+│   ├── CodeEditor.tsx       # Monaco editor wrapper
+│   ├── DraggablePanel.tsx   # Draggable panel wrapper
+│   └── Preview.tsx          # Live preview iframe
+├── hooks/
+│   └── useLocalStorage.ts   # localStorage persistence hook
 ├── utils/
-│   └── generatePreview.ts # HTML generation logic
-├── App.tsx               # Main application
-├── App.css              # Application styles
-└── main.tsx             # Entry point
+│   ├── generatePreview.ts   # HTML generation logic
+│   └── fileOperations.ts    # Export/import functionality
+├── types/
+│   └── index.ts             # TypeScript type definitions
+├── App.tsx                  # Main application
+├── App.css                  # Application styles
+└── main.tsx                 # Entry point
 ```
 
 ## License

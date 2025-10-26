@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   DndContext,
@@ -18,6 +18,8 @@ import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { DraggablePanel } from './components/DraggablePanel';
 import { generatePreview } from './utils/generatePreview';
+import { exportProject, importProject } from './utils/fileOperations';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import type { PanelId, PanelState } from './types';
 import './App.css';
 
@@ -64,12 +66,15 @@ const INITIAL_PANELS: PanelState[] = [
 ];
 
 function App() {
-  const [html, setHtml] = useState(DEFAULT_HTML);
-  const [css, setCss] = useState(DEFAULT_CSS);
-  const [js, setJs] = useState(DEFAULT_JS);
-  const [srcDoc, setSrcDoc] = useState(() => generatePreview(DEFAULT_HTML, DEFAULT_CSS, DEFAULT_JS));
+  // Use localStorage for persistence
+  const [html, setHtml] = useLocalStorage('canvas-html', DEFAULT_HTML);
+  const [css, setCss] = useLocalStorage('canvas-css', DEFAULT_CSS);
+  const [js, setJs] = useLocalStorage('canvas-js', DEFAULT_JS);
+  const [srcDoc, setSrcDoc] = useState(() => generatePreview(html, css, js));
   const [panels, setPanels] = useState<PanelState[]>(INITIAL_PANELS);
   const [activeId, setActiveId] = useState<PanelId | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -127,6 +132,45 @@ function App() {
 
   const handleDragCancel = () => {
     setActiveId(null);
+  };
+
+  const handleExport = () => {
+    exportProject(html, css, js);
+    showSaveMessage('Project exported successfully!');
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await importProject(file);
+      setHtml(data.html);
+      setCss(data.css);
+      setJs(data.js);
+      showSaveMessage('Project imported successfully!');
+    } catch (error) {
+      showSaveMessage('Error importing project: ' + (error as Error).message);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClear = () => {
+    if (window.confirm('Are you sure you want to clear all code? This will reset to the default example.')) {
+      setHtml(DEFAULT_HTML);
+      setCss(DEFAULT_CSS);
+      setJs(DEFAULT_JS);
+      showSaveMessage('Code cleared and reset to default');
+    }
+  };
+
+  const showSaveMessage = (message: string) => {
+    setSaveMessage(message);
+    setTimeout(() => setSaveMessage(''), 3000);
   };
 
   const handleClosePanel = (panelId: PanelId) => {
@@ -229,25 +273,70 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div>
-          <h1>Canvas Learning Tool</h1>
-          <p>Edit HTML, CSS, and JavaScript to see your canvas creations come to life!</p>
-        </div>
-        {hiddenPanels.length > 0 && (
-          <div className="hidden-panels-menu">
-            <span className="menu-label">Show:</span>
-            {hiddenPanels.map((panel) => (
-              <button
-                key={panel.id}
-                className="show-panel-btn"
-                onClick={() => handleOpenPanel(panel.id)}
-                title={`Show ${panel.label} panel`}
-              >
-                {panel.label}
-              </button>
-            ))}
+        <div className="header-left">
+          <div>
+            <h1>Canvas Learning Tool</h1>
+            <p>Edit HTML, CSS, and JavaScript to see your canvas creations come to life!</p>
           </div>
-        )}
+          {saveMessage && <div className="save-message">{saveMessage}</div>}
+        </div>
+        <div className="header-right">
+          <div className="file-operations">
+            <button
+              className="operation-btn"
+              onClick={handleExport}
+              title="Export project to JSON file"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8.5 1.5v7.793l2.146-2.147.708.708L8 11.207 4.646 7.854l.708-.708L7.5 9.293V1.5h1zM2 14.5h12v1H2v-1z"/>
+              </svg>
+              Export
+            </button>
+            <button
+              className="operation-btn"
+              onClick={() => fileInputRef.current?.click()}
+              title="Import project from JSON file"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M7.5 14.5V6.707L5.354 8.854l-.708-.708L8 4.793l3.354 3.353-.708.708L8.5 6.707V14.5h-1zM2 2.5h12v-1H2v1z"/>
+              </svg>
+              Import
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              style={{ display: 'none' }}
+            />
+            <button
+              className="operation-btn clear-btn"
+              onClick={handleClear}
+              title="Clear all code and reset to default"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 13c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6z"/>
+                <path d="M11.854 4.146l-.708.708L8 8l-3.146-3.146-.708.708L7.293 8.707 4.146 11.854l.708.708L8 9.414l3.146 3.146.708-.708L8.707 8.707z"/>
+              </svg>
+              Clear
+            </button>
+          </div>
+          {hiddenPanels.length > 0 && (
+            <div className="hidden-panels-menu">
+              <span className="menu-label">Show:</span>
+              {hiddenPanels.map((panel) => (
+                <button
+                  key={panel.id}
+                  className="show-panel-btn"
+                  onClick={() => handleOpenPanel(panel.id)}
+                  title={`Show ${panel.label} panel`}
+                >
+                  {panel.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </header>
       
       <div className="editor-grid">
