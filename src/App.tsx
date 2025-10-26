@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   DndContext,
   closestCenter,
@@ -157,9 +158,6 @@ function App() {
   const previewKey = 'preview-pane';
 
   const renderPanel = (panel: PanelState) => {
-    const style = { order: panel.position };
-    
-
     switch (panel.id) {
       case 'html':
         return (
@@ -168,7 +166,6 @@ function App() {
             id={panel.id}
             label={panel.label}
             onClose={() => handleClosePanel(panel.id)}
-            style={style}
           >
             <CodeEditor
               key={htmlEditorKey}
@@ -186,7 +183,6 @@ function App() {
             id={panel.id}
             label={panel.label}
             onClose={() => handleClosePanel(panel.id)}
-            style={style}
           >
             <CodeEditor
               key={cssEditorKey}
@@ -204,7 +200,6 @@ function App() {
             id={panel.id}
             label={panel.label}
             onClose={() => handleClosePanel(panel.id)}
-            style={style}
           >
             <CodeEditor
               key={jsEditorKey}
@@ -222,7 +217,6 @@ function App() {
             id={panel.id}
             label={panel.label}
             onClose={() => handleClosePanel(panel.id)}
-            style={style}
           >
             <Preview key={previewKey} srcDoc={srcDoc} />
           </DraggablePanel>
@@ -268,10 +262,52 @@ function App() {
             items={sortedVisiblePanels.map((p) => p.id)}
             strategy={rectSortingStrategy}
           >
-            <div className="panels-container">
-              {/* Render all panels in their original order, use CSS order for visual positioning */}
-              {panels.filter(p => p.visible).map((panel) => renderPanel(panel))}
-            </div>
+            <PanelGroup direction="vertical" className="panels-container">
+              {/* Top Row - always render if there are panels */}
+              {sortedVisiblePanels.length > 0 && (
+                <Panel defaultSize={50} minSize={20} className="panel-row">
+                  <PanelGroup direction="horizontal">
+                    {sortedVisiblePanels[0] && (
+                      <Panel key={`panel-top-left`} defaultSize={50} minSize={15}>
+                        {renderPanel(sortedVisiblePanels[0])}
+                      </Panel>
+                    )}
+                    {sortedVisiblePanels.length >= 2 && (
+                      <>
+                        <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+                        <Panel key={`panel-top-right`} defaultSize={50} minSize={15}>
+                          {renderPanel(sortedVisiblePanels[1])}
+                        </Panel>
+                      </>
+                    )}
+                  </PanelGroup>
+                </Panel>
+              )}
+              
+              {/* Vertical Resize Handle between rows */}
+              {sortedVisiblePanels.length >= 3 && (
+                <PanelResizeHandle className="resize-handle resize-handle-vertical" />
+              )}
+              
+              {/* Bottom Row - only if we have 3+ panels */}
+              {sortedVisiblePanels.length >= 3 && (
+                <Panel defaultSize={50} minSize={20} className="panel-row">
+                  <PanelGroup direction="horizontal">
+                    <Panel key={`panel-bottom-left`} defaultSize={50} minSize={15}>
+                      {renderPanel(sortedVisiblePanels[2])}
+                    </Panel>
+                    {sortedVisiblePanels.length >= 4 && (
+                      <>
+                        <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+                        <Panel key={`panel-bottom-right`} defaultSize={50} minSize={15}>
+                          {renderPanel(sortedVisiblePanels[3])}
+                        </Panel>
+                      </>
+                    )}
+                  </PanelGroup>
+                </Panel>
+              )}
+            </PanelGroup>
           </SortableContext>
           <DragOverlay dropAnimation={null}>
             {activeId ? (

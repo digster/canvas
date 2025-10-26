@@ -5,12 +5,13 @@ A modern, interactive canvas learning tool similar to JSFiddle, built with React
 ## Features
 
 - **Live Code Editing**: Edit HTML, CSS, and JavaScript in real-time with Monaco Editor (the same editor that powers VSCode)
-- **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels to your preference
+- **Resizable Panes**: Drag the borders between panes to adjust their sizes to your preference
+- **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels
 - **Closable Panels**: Close any panel you don't need with the × button, and reopen it from the header menu
 - **Instant Preview**: See your canvas creations update automatically as you type
 - **Syntax Highlighting**: Full syntax highlighting and IntelliSense for HTML, CSS, and JavaScript
 - **Error Handling**: JavaScript errors are displayed in the preview pane
-- **Modern UI**: Clean, dark-themed interface with a responsive grid layout
+- **Modern UI**: Clean, dark-themed interface with a responsive layout
 
 ## Getting Started
 
@@ -51,11 +52,15 @@ The tool consists of four panels that you can customize to your workflow:
 
 **Customization Tips:**
 
+- **Resize Panes**: 
+  - Drag the **horizontal borders** between left/right panels in each row to adjust widths
+  - Drag the **vertical border** between top and bottom rows to adjust heights  
+  - Resize handles turn blue when you hover over them
 - **Reorder Panels**: Click and drag the grip icon (⋮⋮) in any panel header to reorder panels
 - **Close Panels**: Click the × button to close any panel you don't need at the moment
 - **Reopen Panels**: Closed panels appear as buttons in the header - click to reopen them
 - **Auto-Preview**: The preview updates automatically after 300ms of inactivity for a smooth editing experience
-- **Responsive Layout**: Panels automatically arrange in a grid that adapts to your screen size
+- **Responsive Layout**: Panels adapt to your screen size and custom arrangements
 
 ## Technology Stack
 
@@ -63,8 +68,8 @@ The tool consists of four panels that you can customize to your workflow:
 - **TypeScript**: Type-safe JavaScript
 - **Vite**: Fast build tool and dev server
 - **Monaco Editor**: Full-featured code editor (same as VS Code)
+- **react-resizable-panels**: Resizable split-pane layout
 - **dnd-kit**: Modern drag and drop for reordering panels
-- **CSS Grid**: Responsive, flexible panel layout
 
 ## Project Structure
 

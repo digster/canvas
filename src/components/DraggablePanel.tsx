@@ -1,16 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ReactNode, memo, CSSProperties } from 'react';
+import { ReactNode, memo } from 'react';
 
 interface DraggablePanelProps {
   id: string;
   children: ReactNode;
   onClose: () => void;
   label: string;
-  style?: CSSProperties;
 }
 
-export const DraggablePanel = memo(function DraggablePanel({ id, children, onClose, label, style: externalStyle }: DraggablePanelProps) {
+export const DraggablePanel = memo(function DraggablePanel({ id, children, onClose, label }: DraggablePanelProps) {
   const {
     attributes,
     listeners,
@@ -24,7 +23,6 @@ export const DraggablePanel = memo(function DraggablePanel({ id, children, onClo
 
   // Don't apply transform while dragging - only when settling into new position
   const style = {
-    ...externalStyle,
     transform: isDragging ? undefined : CSS.Transform.toString(transform),
     transition: isDragging ? undefined : transition,
     opacity: isDragging ? 0.5 : 1,
