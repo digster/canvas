@@ -5,10 +5,11 @@ A modern, interactive canvas learning tool similar to JSFiddle, built with React
 ## Features
 
 - **Live Code Editing**: Edit HTML, CSS, and JavaScript in real-time with Monaco Editor (the same editor that powers VSCode)
+- **Resizable Panes**: Drag the borders between panes to adjust the layout to your preference
 - **Instant Preview**: See your canvas creations update automatically as you type
 - **Syntax Highlighting**: Full syntax highlighting and IntelliSense for HTML, CSS, and JavaScript
 - **Error Handling**: JavaScript errors are displayed in the preview pane
-- **Modern UI**: Clean, dark-themed interface with a responsive grid layout
+- **Modern UI**: Clean, dark-themed interface with a responsive layout
 
 ## Getting Started
 
@@ -45,7 +46,10 @@ npm run preview
 3. **JavaScript Editor** (Bottom Left): Write your canvas drawing code
 4. **Preview** (Bottom Right): See your canvas come to life in real-time
 
-The preview updates automatically after 300ms of inactivity to provide smooth editing experience.
+**Tips:**
+- Drag the borders between panes to resize them to your preference
+- The preview updates automatically after 300ms of inactivity for a smooth editing experience
+- Hover over resize handles to see them highlight in blue
 
 ## Technology Stack
 
@@ -53,7 +57,7 @@ The preview updates automatically after 300ms of inactivity to provide smooth ed
 - **TypeScript**: Type-safe JavaScript
 - **Vite**: Fast build tool and dev server
 - **Monaco Editor**: Full-featured code editor
-- **CSS Grid**: Responsive layout system
+- **React Resizable Panels**: Adjustable split-pane layout
 
 ## Project Structure
 

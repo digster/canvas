@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { generatePreview } from './utils/generatePreview';
@@ -66,25 +67,46 @@ function App() {
       </header>
       
       <div className="editor-grid">
-        <CodeEditor
-          language="html"
-          value={html}
-          onChange={setHtml}
-          label="HTML"
-        />
-        <CodeEditor
-          language="css"
-          value={css}
-          onChange={setCss}
-          label="CSS"
-        />
-        <CodeEditor
-          language="javascript"
-          value={js}
-          onChange={setJs}
-          label="JavaScript"
-        />
-        <Preview srcDoc={srcDoc} />
+        <PanelGroup direction="vertical">
+          <Panel defaultSize={50} minSize={20}>
+            <PanelGroup direction="horizontal">
+              <Panel defaultSize={50} minSize={20}>
+                <CodeEditor
+                  language="html"
+                  value={html}
+                  onChange={setHtml}
+                  label="HTML"
+                />
+              </Panel>
+              <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+              <Panel defaultSize={50} minSize={20}>
+                <CodeEditor
+                  language="css"
+                  value={css}
+                  onChange={setCss}
+                  label="CSS"
+                />
+              </Panel>
+            </PanelGroup>
+          </Panel>
+          <PanelResizeHandle className="resize-handle resize-handle-vertical" />
+          <Panel defaultSize={50} minSize={20}>
+            <PanelGroup direction="horizontal">
+              <Panel defaultSize={50} minSize={20}>
+                <CodeEditor
+                  language="javascript"
+                  value={js}
+                  onChange={setJs}
+                  label="JavaScript"
+                />
+              </Panel>
+              <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+              <Panel defaultSize={50} minSize={20}>
+                <Preview srcDoc={srcDoc} />
+              </Panel>
+            </PanelGroup>
+          </Panel>
+        </PanelGroup>
       </div>
     </div>
   );
