@@ -66,7 +66,7 @@ function App() {
   const [html, setHtml] = useState(DEFAULT_HTML);
   const [css, setCss] = useState(DEFAULT_CSS);
   const [js, setJs] = useState(DEFAULT_JS);
-  const [srcDoc, setSrcDoc] = useState('');
+  const [srcDoc, setSrcDoc] = useState(() => generatePreview(DEFAULT_HTML, DEFAULT_CSS, DEFAULT_JS));
   const [panels, setPanels] = useState<PanelState[]>(INITIAL_PANELS);
   const [activeId, setActiveId] = useState<PanelId | null>(null);
 
@@ -91,12 +91,6 @@ function App() {
 
     return () => clearTimeout(timeout);
   }, [updatePreview]);
-
-  // Initial preview on mount
-  useEffect(() => {
-    updatePreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as PanelId);
