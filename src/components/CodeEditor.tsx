@@ -1,4 +1,5 @@
 import Editor from '@monaco-editor/react';
+import { memo } from 'react';
 
 interface CodeEditorProps {
   language: string;
@@ -7,16 +8,18 @@ interface CodeEditorProps {
   label: string;
 }
 
-export function CodeEditor({ language, value, onChange, label }: CodeEditorProps) {
+export const CodeEditor = memo(function CodeEditor({ language, value, onChange, label }: CodeEditorProps) {
   const handleEditorChange = (value: string | undefined) => {
     onChange(value || '');
   };
 
   return (
     <div className="editor-container">
-      <div className="editor-header">
-        <span className="editor-label">{label}</span>
-      </div>
+      {label && (
+        <div className="editor-header">
+          <span className="editor-label">{label}</span>
+        </div>
+      )}
       <div className="editor-wrapper">
         <Editor
           height="100%"
@@ -37,5 +40,5 @@ export function CodeEditor({ language, value, onChange, label }: CodeEditorProps
       </div>
     </div>
   );
-}
+});
 

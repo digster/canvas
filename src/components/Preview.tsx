@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 
 interface PreviewProps {
   srcDoc: string;
 }
 
-export function Preview({ srcDoc }: PreviewProps) {
+export const Preview = memo(function Preview({ srcDoc }: PreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -17,9 +17,6 @@ export function Preview({ srcDoc }: PreviewProps) {
 
   return (
     <div className="preview-container">
-      <div className="preview-header">
-        <span className="preview-label">Preview</span>
-      </div>
       <iframe
         ref={iframeRef}
         title="preview"
@@ -28,5 +25,5 @@ export function Preview({ srcDoc }: PreviewProps) {
       />
     </div>
   );
-}
+});
 

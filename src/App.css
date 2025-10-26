@@ -27,6 +27,10 @@ body {
   padding: 16px 24px;
   border-bottom: 1px solid #3e3e42;
   flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
 }
 
 .app-header h1 {
@@ -42,20 +46,156 @@ body {
   margin: 0;
 }
 
+.hidden-panels-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  font-size: 13px;
+  color: #999;
+  font-weight: 500;
+}
+
+.show-panel-btn {
+  background: #3e3e42;
+  border: 1px solid #5a5a5a;
+  color: #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.show-panel-btn:hover {
+  background: #505050;
+  border-color: #007acc;
+  color: #fff;
+}
+
 .editor-grid {
   flex: 1;
   overflow: hidden;
   background: #1e1e1e;
 }
 
-/* Panel styling for react-resizable-panels */
-[data-panel] {
+.panels-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  background: #3e3e42;
   overflow: hidden;
 }
 
-[data-panel-group] {
+/* Adjust grid for different panel counts */
+.panels-container:has(> :nth-child(3):last-child) {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.panels-container:has(> :nth-child(2):last-child) {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.panels-container:has(> :nth-child(1):last-child) {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* Draggable Panel Styling */
+.draggable-panel {
+  background: #1e1e1e;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  width: 100%;
+  cursor: default;
+  position: relative;
+}
+
+.draggable-panel.dragging {
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.drag-overlay {
+  width: 400px;
+  height: 300px;
+  background: #1e1e1e;
+  border: 2px solid #007acc;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  cursor: grabbing;
+}
+
+.panel-header-controls {
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.panel-drag-handle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: grab;
+  user-select: none;
+  flex: 1;
+  color: #ccc;
+}
+
+.panel-drag-handle:active {
+  cursor: grabbing;
+}
+
+.panel-drag-handle svg {
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ccc;
+}
+
+.panel-close-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.panel-close-btn:hover {
+  background: #3e3e42;
+  color: #fff;
+}
+
+.panel-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-container,
@@ -66,6 +206,7 @@ body {
   overflow: hidden;
   height: 100%;
   width: 100%;
+  flex: 1;
 }
 
 .editor-header,
@@ -103,38 +244,25 @@ body {
   display: block;
 }
 
-/* Resize Handles */
-.resize-handle {
-  background: #3e3e42;
-  transition: background-color 0.2s ease;
-}
-
-.resize-handle:hover {
-  background: #007acc;
-}
-
-.resize-handle:active {
-  background: #0098ff;
-}
-
-.resize-handle-horizontal {
-  width: 4px;
-  cursor: col-resize;
-}
-
-.resize-handle-vertical {
-  height: 4px;
-  cursor: row-resize;
-}
-
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
   .app-header h1 {
     font-size: 20px;
   }
   
   .app-header p {
     font-size: 12px;
+  }
+
+  .panels-container {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
   }
   
   .editor-header,
@@ -144,6 +272,10 @@ body {
   
   .editor-label,
   .preview-label {
+    font-size: 11px;
+  }
+
+  .panel-title {
     font-size: 11px;
   }
 }

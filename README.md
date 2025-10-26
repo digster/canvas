@@ -5,11 +5,12 @@ A modern, interactive canvas learning tool similar to JSFiddle, built with React
 ## Features
 
 - **Live Code Editing**: Edit HTML, CSS, and JavaScript in real-time with Monaco Editor (the same editor that powers VSCode)
-- **Resizable Panes**: Drag the borders between panes to adjust the layout to your preference
+- **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels to your preference
+- **Closable Panels**: Close any panel you don't need with the × button, and reopen it from the header menu
 - **Instant Preview**: See your canvas creations update automatically as you type
 - **Syntax Highlighting**: Full syntax highlighting and IntelliSense for HTML, CSS, and JavaScript
 - **Error Handling**: JavaScript errors are displayed in the preview pane
-- **Modern UI**: Clean, dark-themed interface with a responsive layout
+- **Modern UI**: Clean, dark-themed interface with a responsive grid layout
 
 ## Getting Started
 
@@ -41,23 +42,29 @@ npm run preview
 
 ## Usage
 
-1. **HTML Editor** (Top Left): Define your canvas element and any other HTML structure
-2. **CSS Editor** (Top Right): Style your canvas and page elements
-3. **JavaScript Editor** (Bottom Left): Write your canvas drawing code
-4. **Preview** (Bottom Right): See your canvas come to life in real-time
+The tool consists of four panels that you can customize to your workflow:
 
-**Tips:**
-- Drag the borders between panes to resize them to your preference
-- The preview updates automatically after 300ms of inactivity for a smooth editing experience
-- Hover over resize handles to see them highlight in blue
+1. **HTML Editor**: Define your canvas element and any other HTML structure
+2. **CSS Editor**: Style your canvas and page elements
+3. **JavaScript Editor**: Write your canvas drawing code
+4. **Preview**: See your canvas come to life in real-time
+
+**Customization Tips:**
+
+- **Reorder Panels**: Click and drag the grip icon (⋮⋮) in any panel header to reorder panels
+- **Close Panels**: Click the × button to close any panel you don't need at the moment
+- **Reopen Panels**: Closed panels appear as buttons in the header - click to reopen them
+- **Auto-Preview**: The preview updates automatically after 300ms of inactivity for a smooth editing experience
+- **Responsive Layout**: Panels automatically arrange in a grid that adapts to your screen size
 
 ## Technology Stack
 
 - **React 18**: UI framework
 - **TypeScript**: Type-safe JavaScript
 - **Vite**: Fast build tool and dev server
-- **Monaco Editor**: Full-featured code editor
-- **React Resizable Panels**: Adjustable split-pane layout
+- **Monaco Editor**: Full-featured code editor (same as VS Code)
+- **dnd-kit**: Modern drag and drop for reordering panels
+- **CSS Grid**: Responsive, flexible panel layout
 
 ## Project Structure
 
