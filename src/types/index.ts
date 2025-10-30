@@ -7,3 +7,17 @@ export interface PanelState {
   position: number;
 }
 
+export interface JavaScriptFile {
+  id: string;
+  name: string;
+  content: string;
+}
+
+export interface ProjectData {
+  html: string;
+  css: string;
+  jsFiles: JavaScriptFile[];
+  timestamp: number;
+  version: string;
+}
+

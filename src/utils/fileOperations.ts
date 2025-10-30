@@ -1,18 +1,12 @@
-export interface ProjectData {
-  html: string;
-  css: string;
-  js: string;
-  timestamp: number;
-  version: string;
-}
+import type { ProjectData, JavaScriptFile } from '../types';
 
-export function exportProject(html: string, css: string, js: string): void {
+export function exportProject(html: string, css: string, jsFiles: JavaScriptFile[]): void {
   const projectData: ProjectData = {
     html,
     css,
-    js,
+    jsFiles,
     timestamp: Date.now(),
-    version: '1.0.0',
+    version: '2.0.0',
   };
 
   const blob = new Blob([JSON.stringify(projectData, null, 2)], {
@@ -35,14 +29,36 @@ export function importProject(file: File): Promise<ProjectData> {
 
     reader.onload = (event) => {
       try {
-        const data = JSON.parse(event.target?.result as string) as ProjectData;
+        const data = JSON.parse(event.target?.result as string) as any;
         
-        // Validate the data structure
-        if (!data.html || !data.css || !data.js) {
+        // Handle legacy format (version 1.0.0) with single js string
+        if (data.version === '1.0.0' && data.js && typeof data.js === 'string') {
+          const projectData: ProjectData = {
+            html: data.html,
+            css: data.css,
+            jsFiles: [{
+              id: crypto.randomUUID(),
+              name: 'script.js',
+              content: data.js
+            }],
+            timestamp: data.timestamp || Date.now(),
+            version: '2.0.0'
+          };
+          resolve(projectData);
+          return;
+        }
+
+        // Validate the new data structure (version 2.0.0)
+        if (!data.html || !data.css || !Array.isArray(data.jsFiles)) {
           throw new Error('Invalid project file format');
         }
 
-        resolve(data);
+        // Validate jsFiles array
+        if (data.jsFiles.length === 0 || !data.jsFiles.every((f: any) => f.id && f.name && typeof f.content === 'string')) {
+          throw new Error('Invalid JavaScript files in project');
+        }
+
+        resolve(data as ProjectData);
       } catch (error) {
         reject(error);
       }

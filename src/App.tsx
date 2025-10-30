@@ -17,10 +17,11 @@ import {
 import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { DraggablePanel } from './components/DraggablePanel';
+import { FileTabs } from './components/FileTabs';
 import { generatePreview } from './utils/generatePreview';
 import { exportProject, importProject } from './utils/fileOperations';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { PanelId, PanelState } from './types';
+import type { PanelId, PanelState, JavaScriptFile } from './types';
 import './App.css';
 
 const DEFAULT_HTML = `<canvas id="myCanvas" width="600" height="400"></canvas>`;
@@ -32,7 +33,11 @@ const DEFAULT_CSS = `canvas {
   margin: 0 auto;
 }`;
 
-const DEFAULT_JS = `const canvas = document.getElementById('myCanvas');
+const DEFAULT_JS_FILES: JavaScriptFile[] = [
+  {
+    id: crypto.randomUUID(),
+    name: 'main.js',
+    content: `const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
 // Draw a rectangle
@@ -56,7 +61,9 @@ ctx.moveTo(50, 300);
 ctx.lineTo(550, 300);
 ctx.strokeStyle = '#FF5722';
 ctx.lineWidth = 3;
-ctx.stroke();`;
+ctx.stroke();`
+  }
+];
 
 const INITIAL_PANELS: PanelState[] = [
   { id: 'html', label: 'HTML', visible: true, position: 0 },
@@ -69,8 +76,9 @@ function App() {
   // Use localStorage for persistence
   const [html, setHtml] = useLocalStorage('canvas-html', DEFAULT_HTML);
   const [css, setCss] = useLocalStorage('canvas-css', DEFAULT_CSS);
-  const [js, setJs] = useLocalStorage('canvas-js', DEFAULT_JS);
-  const [srcDoc, setSrcDoc] = useState(() => generatePreview(html, css, js));
+  const [jsFiles, setJsFiles] = useLocalStorage('canvas-js-files', DEFAULT_JS_FILES);
+  const [activeFileId, setActiveFileId] = useLocalStorage('canvas-active-file-id', jsFiles[0]?.id || '');
+  const [srcDoc, setSrcDoc] = useState(() => generatePreview(html, css, jsFiles));
   const [panels, setPanels] = useState<PanelState[]>(INITIAL_PANELS);
   const [activeId, setActiveId] = useState<PanelId | null>(null);
   const [saveMessage, setSaveMessage] = useState<string>('');
@@ -87,8 +95,8 @@ function App() {
 
   // Debounced preview update
   const updatePreview = useCallback(() => {
-    setSrcDoc(generatePreview(html, css, js));
-  }, [html, css, js]);
+    setSrcDoc(generatePreview(html, css, jsFiles));
+  }, [html, css, jsFiles]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -135,7 +143,7 @@ function App() {
   };
 
   const handleExport = () => {
-    exportProject(html, css, js);
+    exportProject(html, css, jsFiles);
     showSaveMessage('Project exported successfully!');
   };
 
@@ -147,7 +155,8 @@ function App() {
       const data = await importProject(file);
       setHtml(data.html);
       setCss(data.css);
-      setJs(data.js);
+      setJsFiles(data.jsFiles);
+      setActiveFileId(data.jsFiles[0]?.id || '');
       showSaveMessage('Project imported successfully!');
     } catch (error) {
       showSaveMessage('Error importing project: ' + (error as Error).message);
@@ -163,14 +172,48 @@ function App() {
     if (window.confirm('Are you sure you want to clear all code? This will reset to the default example.')) {
       setHtml(DEFAULT_HTML);
       setCss(DEFAULT_CSS);
-      setJs(DEFAULT_JS);
+      setJsFiles(DEFAULT_JS_FILES);
+      setActiveFileId(DEFAULT_JS_FILES[0].id);
       showSaveMessage('Code cleared and reset to default');
     }
   };
 
-  const showSaveMessage = (message: string) => {
-    setSaveMessage(message);
-    setTimeout(() => setSaveMessage(''), 3000);
+  // JavaScript file management handlers
+  const handleAddJsFile = () => {
+    const newFile: JavaScriptFile = {
+      id: crypto.randomUUID(),
+      name: `script${jsFiles.length + 1}.js`,
+      content: '// New JavaScript file\n'
+    };
+    setJsFiles([...jsFiles, newFile]);
+    setActiveFileId(newFile.id);
+    showSaveMessage(`Created ${newFile.name}`);
+  };
+
+  const handleDeleteJsFile = (id: string) => {
+    if (jsFiles.length <= 1) {
+      return; // Don't delete the last file
+    }
+    const updatedFiles = jsFiles.filter(f => f.id !== id);
+    setJsFiles(updatedFiles);
+    // If we deleted the active file, switch to the first file
+    if (activeFileId === id) {
+      setActiveFileId(updatedFiles[0].id);
+    }
+    showSaveMessage('File deleted');
+  };
+
+  const handleRenameJsFile = (id: string, newName: string) => {
+    setJsFiles(jsFiles.map(f => 
+      f.id === id ? { ...f, name: newName.endsWith('.js') ? newName : `${newName}.js` } : f
+    ));
+    showSaveMessage('File renamed');
+  };
+
+  const handleUpdateJsFile = (content: string) => {
+    setJsFiles(jsFiles.map(f => 
+      f.id === activeFileId ? { ...f, content } : f
+    ));
   };
 
   const handleClosePanel = (panelId: PanelId) => {
@@ -187,6 +230,11 @@ function App() {
         item.id === panelId ? { ...item, visible: true } : item
       )
     );
+  };
+
+  const showSaveMessage = (message: string) => {
+    setSaveMessage(message);
+    setTimeout(() => setSaveMessage(''), 3000);
   };
 
   const visiblePanels = panels.filter((p) => p.visible);
@@ -238,6 +286,7 @@ function App() {
           </DraggablePanel>
         );
       case 'javascript':
+        const activeFile = jsFiles.find(f => f.id === activeFileId) || jsFiles[0];
         return (
           <DraggablePanel
             key={jsEditorKey}
@@ -245,13 +294,25 @@ function App() {
             label={panel.label}
             onClose={() => handleClosePanel(panel.id)}
           >
-            <CodeEditor
-              key={jsEditorKey}
-              language="javascript"
-              value={js}
-              onChange={setJs}
-              label=""
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <FileTabs
+                files={jsFiles}
+                activeFileId={activeFileId}
+                onSelectFile={setActiveFileId}
+                onAddFile={handleAddJsFile}
+                onRenameFile={handleRenameJsFile}
+                onDeleteFile={handleDeleteJsFile}
+              />
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <CodeEditor
+                  key={activeFileId}
+                  language="javascript"
+                  value={activeFile?.content || ''}
+                  onChange={handleUpdateJsFile}
+                  label=""
+                />
+              </div>
+            </div>
           </DraggablePanel>
         );
       case 'preview':
