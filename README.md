@@ -5,11 +5,12 @@ A modern, interactive canvas learning tool similar to JSFiddle, built with React
 ## Features
 
 - **Live Code Editing**: Edit HTML, CSS, and JavaScript in real-time with Monaco Editor (the same editor that powers VSCode)
+- **Dual Layout Modes**: Switch between Grid mode (4 draggable panels) and Split mode (tabbed editor + preview)
 - **Auto-Save**: Your work is automatically saved to browser localStorage as you type
 - **Export/Import**: Save your projects as JSON files and load them later
 - **Resizable Panes**: Drag the borders between panes to adjust their sizes to your preference
-- **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels
-- **Closable Panels**: Close any panel you don't need with the × button, and reopen it from the header menu
+- **Draggable Panels**: Click and drag the grip icon in any panel header to reorder panels (Grid mode)
+- **Closable Panels**: Close any panel you don't need with the × button, and reopen it from the header menu (Grid mode)
 - **Instant Preview**: See your canvas creations update automatically as you type
 - **Syntax Highlighting**: Full syntax highlighting and IntelliSense for HTML, CSS, and JavaScript
 - **Error Handling**: JavaScript errors are displayed in the preview pane
@@ -54,16 +55,19 @@ The tool consists of four panels that you can customize to your workflow:
 
 **Customization Tips:**
 
+- **Layout Toggle**: Use the Grid/Split toggle in the header to switch between layouts:
+  - **Grid Mode**: 4-panel layout with drag-and-drop reordering
+  - **Split Mode**: Tabbed editor on left, preview on right
 - **Auto-Save**: Your work is automatically saved to browser localStorage - close and reopen the app anytime
 - **Export Project**: Click the "Export" button to download your project as a JSON file
 - **Import Project**: Click the "Import" button to load a previously exported project
 - **Clear Code**: Click the "Clear" button to reset all code to the default example
-- **Resize Panes**: 
+- **Resize Panes**:
   - Drag the **horizontal borders** between left/right panels in each row to adjust widths
-  - Drag the **vertical border** between top and bottom rows to adjust heights  
+  - Drag the **vertical border** between top and bottom rows to adjust heights
   - Resize handles turn blue when you hover over them
-- **Reorder Panels**: Click and drag the grip icon (⋮⋮) in any panel header to reorder panels
-- **Close Panels**: Click the × button to close any panel you don't need at the moment
+- **Reorder Panels**: Click and drag the grip icon (⋮⋮) in any panel header to reorder panels (Grid mode only)
+- **Close Panels**: Click the × button to close any panel you don't need at the moment (Grid mode only)
 - **Reopen Panels**: Closed panels appear as buttons in the header - click to reopen them
 - **Auto-Preview**: The preview updates automatically after 300ms of inactivity for a smooth editing experience
 - **Responsive Layout**: Panels adapt to your screen size and custom arrangements
@@ -84,7 +88,11 @@ src/
 ├── components/
 │   ├── CodeEditor.tsx       # Monaco editor wrapper
 │   ├── DraggablePanel.tsx   # Draggable panel wrapper
-│   └── Preview.tsx          # Live preview iframe
+│   ├── FileTabs.tsx         # Tab interface for JS files
+│   ├── LayoutToggle.tsx     # Grid/Split mode toggle
+│   ├── Preview.tsx          # Live preview iframe
+│   ├── SplitLayout.tsx      # Split mode layout container
+│   └── TabbedEditor.tsx     # Tabbed editor for split mode
 ├── hooks/
 │   └── useLocalStorage.ts   # localStorage persistence hook
 ├── utils/

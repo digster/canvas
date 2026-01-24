@@ -1,5 +1,7 @@
 export type PanelId = 'html' | 'css' | 'javascript' | 'preview';
 
+export type LayoutMode = 'grid' | 'split';
+
 export interface PanelState {
   id: PanelId;
   label: string;

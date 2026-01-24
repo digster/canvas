@@ -23,12 +23,16 @@ src/
 │   ├── CodeEditor.tsx    # Monaco editor wrapper
 │   ├── Preview.tsx       # iframe preview renderer
 │   ├── DraggablePanel.tsx # Drag-and-drop panel wrapper
-│   └── FileTabs.tsx      # Tab interface for JS files
+│   ├── FileTabs.tsx      # Tab interface for JS files
+│   ├── LayoutToggle.tsx  # Grid/Split mode toggle control
+│   ├── UnifiedEditor.tsx # Single-document editor for split mode
+│   └── SplitLayout.tsx   # Split mode layout container
 ├── hooks/
 │   └── useLocalStorage.ts # Persistence hook
 ├── utils/
-│   ├── generatePreview.ts # HTML generation for iframe
-│   └── fileOperations.ts  # File CRUD operations
+│   ├── generatePreview.ts  # HTML generation for iframe
+│   ├── fileOperations.ts   # File CRUD operations
+│   └── unifiedDocument.ts  # Combine/parse unified HTML document
 ├── types/
 │   └── index.ts          # TypeScript definitions
 ├── App.tsx               # Main application component
@@ -74,14 +78,23 @@ All code state persists to localStorage automatically. The hook handles:
 - Debounced writes to prevent performance issues
 - Serialization/deserialization
 
-### 3. 2x2 Grid Panel Layout
-The UI uses a flexible grid of four panels:
-- HTML Editor
-- CSS Editor
-- JavaScript Editor (with file tabs)
-- Live Preview
+### 3. Dual Layout Modes
+The UI supports two layout modes, toggled via segmented control in the header:
 
-Panels can be reordered via drag-and-drop using dnd-kit.
+**Grid Mode (default):**
+- 2x2 grid of four resizable panels (HTML, CSS, JavaScript, Preview)
+- Panels can be reordered via drag-and-drop using dnd-kit
+- Individual panels can be hidden/shown
+
+**Split Mode:**
+- Two-pane layout: unified code editor on left, preview on right
+- Editor shows a single combined HTML document (like editing one .html file)
+- CSS appears in `<style>` tags within `<head>`
+- HTML body content appears in `<body>`
+- Each JS file appears as a `<script>` block with `<!-- filename.js -->` comment
+- Changes are bidirectionally synced: editing the unified doc updates state, and vice versa
+
+Layout preference persists in localStorage (`canvas-layout-mode`).
 
 ### 4. Multiple JS File Support
 JavaScript code is organized into multiple files managed through tabs:

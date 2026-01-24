@@ -18,10 +18,12 @@ import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { DraggablePanel } from './components/DraggablePanel';
 import { FileTabs } from './components/FileTabs';
+import { LayoutToggle } from './components/LayoutToggle';
+import { SplitLayout } from './components/SplitLayout';
 import { generatePreview } from './utils/generatePreview';
 import { exportProject, importProject } from './utils/fileOperations';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import type { PanelId, PanelState, JavaScriptFile } from './types';
+import type { PanelId, PanelState, JavaScriptFile, LayoutMode } from './types';
 import './App.css';
 
 const DEFAULT_HTML = `<canvas id="myCanvas" width="600" height="400"></canvas>`;
@@ -78,6 +80,7 @@ function App() {
   const [css, setCss] = useLocalStorage('canvas-css', DEFAULT_CSS);
   const [jsFiles, setJsFiles] = useLocalStorage('canvas-js-files', DEFAULT_JS_FILES);
   const [activeFileId, setActiveFileId] = useLocalStorage('canvas-active-file-id', jsFiles[0]?.id || '');
+  const [layoutMode, setLayoutMode] = useLocalStorage<LayoutMode>('canvas-layout-mode', 'grid');
   const [srcDoc, setSrcDoc] = useState(() => generatePreview(html, css, jsFiles));
   const [panels, setPanels] = useState<PanelState[]>(INITIAL_PANELS);
   const [activeId, setActiveId] = useState<PanelId | null>(null);
@@ -285,7 +288,7 @@ function App() {
             />
           </DraggablePanel>
         );
-      case 'javascript':
+      case 'javascript': {
         const activeFile = jsFiles.find(f => f.id === activeFileId) || jsFiles[0];
         return (
           <DraggablePanel
@@ -315,6 +318,7 @@ function App() {
             </div>
           </DraggablePanel>
         );
+      }
       case 'preview':
         return (
           <DraggablePanel
@@ -342,6 +346,7 @@ function App() {
           {saveMessage && <div className="save-message">{saveMessage}</div>}
         </div>
         <div className="header-right">
+          <LayoutToggle mode={layoutMode} onChange={setLayoutMode} />
           <div className="file-operations">
             <button
               className="operation-btn"
@@ -382,7 +387,7 @@ function App() {
               Clear
             </button>
           </div>
-          {hiddenPanels.length > 0 && (
+          {layoutMode === 'grid' && hiddenPanels.length > 0 && (
             <div className="hidden-panels-menu">
               <span className="menu-label">Show:</span>
               {hiddenPanels.map((panel) => (
@@ -401,81 +406,93 @@ function App() {
       </header>
       
       <div className="editor-grid">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <SortableContext
-            items={sortedVisiblePanels.map((p) => p.id)}
-            strategy={rectSortingStrategy}
+        {layoutMode === 'split' ? (
+          <SplitLayout
+            html={html}
+            css={css}
+            jsFiles={jsFiles}
+            srcDoc={srcDoc}
+            onHtmlChange={setHtml}
+            onCssChange={setCss}
+            onJsFilesChange={setJsFiles}
+          />
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
-            <PanelGroup direction="vertical" className="panels-container">
-              {/* Top Row - always render if there are panels */}
-              {sortedVisiblePanels.length > 0 && (
-                <Panel defaultSize={50} minSize={20} className="panel-row">
-                  <PanelGroup direction="horizontal">
-                    {sortedVisiblePanels[0] && (
-                      <Panel key={`panel-top-left`} defaultSize={50} minSize={15}>
-                        {renderPanel(sortedVisiblePanels[0])}
+            <SortableContext
+              items={sortedVisiblePanels.map((p) => p.id)}
+              strategy={rectSortingStrategy}
+            >
+              <PanelGroup direction="vertical" className="panels-container">
+                {/* Top Row - always render if there are panels */}
+                {sortedVisiblePanels.length > 0 && (
+                  <Panel defaultSize={50} minSize={20} className="panel-row">
+                    <PanelGroup direction="horizontal">
+                      {sortedVisiblePanels[0] && (
+                        <Panel key={`panel-top-left`} defaultSize={50} minSize={15}>
+                          {renderPanel(sortedVisiblePanels[0])}
+                        </Panel>
+                      )}
+                      {sortedVisiblePanels.length >= 2 && (
+                        <>
+                          <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+                          <Panel key={`panel-top-right`} defaultSize={50} minSize={15}>
+                            {renderPanel(sortedVisiblePanels[1])}
+                          </Panel>
+                        </>
+                      )}
+                    </PanelGroup>
+                  </Panel>
+                )}
+
+                {/* Vertical Resize Handle between rows */}
+                {sortedVisiblePanels.length >= 3 && (
+                  <PanelResizeHandle className="resize-handle resize-handle-vertical" />
+                )}
+
+                {/* Bottom Row - only if we have 3+ panels */}
+                {sortedVisiblePanels.length >= 3 && (
+                  <Panel defaultSize={50} minSize={20} className="panel-row">
+                    <PanelGroup direction="horizontal">
+                      <Panel key={`panel-bottom-left`} defaultSize={50} minSize={15}>
+                        {renderPanel(sortedVisiblePanels[2])}
                       </Panel>
-                    )}
-                    {sortedVisiblePanels.length >= 2 && (
-                      <>
-                        <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
-                        <Panel key={`panel-top-right`} defaultSize={50} minSize={15}>
-                          {renderPanel(sortedVisiblePanels[1])}
-                        </Panel>
-                      </>
-                    )}
-                  </PanelGroup>
-                </Panel>
-              )}
-              
-              {/* Vertical Resize Handle between rows */}
-              {sortedVisiblePanels.length >= 3 && (
-                <PanelResizeHandle className="resize-handle resize-handle-vertical" />
-              )}
-              
-              {/* Bottom Row - only if we have 3+ panels */}
-              {sortedVisiblePanels.length >= 3 && (
-                <Panel defaultSize={50} minSize={20} className="panel-row">
-                  <PanelGroup direction="horizontal">
-                    <Panel key={`panel-bottom-left`} defaultSize={50} minSize={15}>
-                      {renderPanel(sortedVisiblePanels[2])}
-                    </Panel>
-                    {sortedVisiblePanels.length >= 4 && (
-                      <>
-                        <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
-                        <Panel key={`panel-bottom-right`} defaultSize={50} minSize={15}>
-                          {renderPanel(sortedVisiblePanels[3])}
-                        </Panel>
-                      </>
-                    )}
-                  </PanelGroup>
-                </Panel>
-              )}
-            </PanelGroup>
-          </SortableContext>
-          <DragOverlay dropAnimation={null}>
-            {activeId ? (
-              <div className="draggable-panel drag-overlay">
-                <div className="panel-header-controls">
-                  <div className="panel-drag-handle">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M5 3h2v2H5V3zm4 0h2v2H9V3zM5 7h2v2H5V7zm4 0h2v2H9V7zm-4 4h2v2H5v-2zm4 0h2v2H9v-2z"/>
-                    </svg>
-                    <span className="panel-title">
-                      {visiblePanels.find(p => p.id === activeId)?.label}
-                    </span>
+                      {sortedVisiblePanels.length >= 4 && (
+                        <>
+                          <PanelResizeHandle className="resize-handle resize-handle-horizontal" />
+                          <Panel key={`panel-bottom-right`} defaultSize={50} minSize={15}>
+                            {renderPanel(sortedVisiblePanels[3])}
+                          </Panel>
+                        </>
+                      )}
+                    </PanelGroup>
+                  </Panel>
+                )}
+              </PanelGroup>
+            </SortableContext>
+            <DragOverlay dropAnimation={null}>
+              {activeId ? (
+                <div className="draggable-panel drag-overlay">
+                  <div className="panel-header-controls">
+                    <div className="panel-drag-handle">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5 3h2v2H5V3zm4 0h2v2H9V3zM5 7h2v2H5V7zm4 0h2v2H9V7zm-4 4h2v2H5v-2zm4 0h2v2H9v-2z"/>
+                      </svg>
+                      <span className="panel-title">
+                        {visiblePanels.find(p => p.id === activeId)?.label}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        )}
       </div>
     </div>
   );

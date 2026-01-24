@@ -516,3 +516,83 @@ body {
 .file-tab-add:active {
   transform: translateY(1px);
 }
+
+/* Layout Toggle Styling */
+.layout-toggle {
+  display: flex;
+  background: #1e1e1e;
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid #3e3e42;
+}
+
+.layout-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.layout-toggle-btn:hover {
+  color: #ccc;
+  background: #3e3e42;
+}
+
+.layout-toggle-btn.active {
+  background: #007acc;
+  color: #fff;
+}
+
+.layout-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Split Layout Styling */
+.split-layout {
+  height: 100%;
+  width: 100%;
+  background: #1e1e1e;
+}
+
+.split-preview-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+.split-preview-header {
+  background: #2d2d30;
+  padding: 10px 16px;
+  border-bottom: 1px solid #3e3e42;
+  flex-shrink: 0;
+}
+
+/* Unified Editor Styling */
+.unified-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+.unified-editor-header {
+  background: #2d2d30;
+  padding: 10px 16px;
+  border-bottom: 1px solid #3e3e42;
+  flex-shrink: 0;
+}
+
+.unified-editor-content {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
