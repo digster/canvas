@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ReactNode, memo } from 'react';
+import { type ReactNode, memo } from 'react';
 
 interface DraggablePanelProps {
   id: string;
